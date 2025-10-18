@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Registration, Login & Profile Management</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>User Registration & Login</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% if session.user %}
+      <p>You are logged in as <strong>{{ session.user.name }}</strong> ({{ session.user.role }})</p>
+      <a href="{{ url_for('logout') }}">Logout</a>
+
+      <!-- Profile Management Section -->
+      {% if session.user.role == 'jobseeker' %}
+        <h3>Job Seeker Profile</h3>
+        <form method="POST" action="{{ url_for('jobseeker_profile') }}" enctype="multipart/form-data">
+          <label for="resume">Upload Resume:</label>
+          <input type="file" name="resume" accept=".pdf,.doc,.docx" required />
+
+          <label for="skills">Skills (comma separated):</label>
+          <input type="text" name="skills" placeholder="e.g. Python, Project Management" required />
+
+          <label for="experience">Experience:</label>
+          <textarea name="experience" placeholder="Describe your work experience" required></textarea>
+
+          <label for="education">Education:</label>
+          <textarea name="education" placeholder="Your education details" required></textarea>
+
+          <button type="submit">Save Profile</button>
+        </form>
+
+      {% elif session.user.role == 'employer' %}
+        <h3>Employer Company Profile</h3>
+        <form method="POST" action="{{ url_for('employer_profile') }}" enctype="multipart/form-data">
+          <label for="company_name">Company Name:</label>
+          <input type="text" name="company_name" placeholder="Company Name" required />
+
+          <label for="company_description">Company Description:</label>
+          <textarea name="company_description" placeholder="Describe your company" required></textarea>
+
+          <label for="company_logo">Upload Company Logo:</label>
+          <input type="file" name="company_logo" accept="image/*" />
+
+          <button type="submit">Save Company Profile</button>
+        </form>
+
+        <!-- New Job Posting Form -->
+        <h3>Post a Job</h3>
+        <form method="POST" action="{{ url_for('post_job') }}">
+          <label for="job_title">Job Title:</label>
+          <input type="text" name="job_title" placeholder="Job Title" required />
+
+          <label for="job_description">Job Description:</label>
+          <textarea name="job_description" placeholder="Describe the job" required></textarea>
+
+          <label for="location">Location:</label>
+          <input type="text" name="location" placeholder="Job Location" required />
+
+          <label for="salary">Salary:</label>
+          <input type="text" name="salary" placeholder="Salary Range or Amount" />
+
+          <label for="deadline">Application Deadline:</label>
+          <input type="date" name="deadline" required />
+
+          <button type="submit">Post Job</button>
+        </form>
+      {% endif %}
+
+    {% else %}
+      <div class="form-toggle">
+        <button onclick="showForm('register')">Register</button>
+        <button onclick="showForm('login')">Login</button>
+      </div>
+
+      <form id="registerForm" class="form hidden" method="POST" action="{{ url_for('register') }}">
+        <h3>Register</h3>
+        <label for="role">Select Role:</label>
+        <select name="role" required>
+          <option value="">Choose</option>
+          <option value="jobseeker">Job Seeker</option>
+          <option value="employer">Employer</option>
+        </select>
+
+        <input type="text" name="name" placeholder="Full Name" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit">Register</button>
+      </form>
+
+      <form id="loginForm" class="form hidden" method="POST" action="{{ url_for('login') }}">
+        <h3>Login</h3>
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
